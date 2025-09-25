@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>みんなの辛いことスライダー</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <style>
+    body { margin: 0; background: #111; color: #fff; font-family: sans-serif; }
+    .swiper { width: 100%; height: 100vh; }
+    .swiper-slide {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+    .content { margin-bottom: 15px; }
+    .date { font-size: 0.9rem; color: #aaa; }
+  </style>
+</head>
+<body>
+  <div class="swiper">
+    <div class="swiper-wrapper" id="slides"></div>
+    <div class="swiper-pagination"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    async function loadData() {
+      const sheetId = "1vDbt5nQeH_zgMjJCDnMaB6oGhMMPc2vv-ixQ4zYI9A8";  // ここを自分の ID に変える
+      const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+      const res = await fetch(url);
+      const text = await res.text();
+      const rows = text.split("\n").slice(1);
+
+      const slidesEl = document.getElementById("slides");
+
+      rows.forEach(row => {
+        const cols = row.split(",");
+        // 例：タイムスタンプが cols[0], にっくねーむ cols[1], つらいこと cols[2] と仮定
+        const timestamp = cols[0];
+        const nickname = cols[1];
+        const content = cols[2];
+
+        if (content && content.trim() !== "") {
+          const slide = document.createElement("div");
+          slide.className = "swiper-slide";
+          slide.innerHTML = `
+            <div class="content">「${content}」</div>
+            <div class="date">${timestamp} — ${nickname}</div>
+          `;
+          slidesEl.appendChild(slide);
+        }
+      });
+
+      // Swiper を初期化
+      new Swiper(".swiper", {
+        loop: true,
+        pagination: { el: ".swiper-pagination", clickable: true },
+        autoplay: { delay: 5000 },
+        effect: "slide"
+      });
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
