@@ -5,9 +5,10 @@
   <title>みんなのつらいこと</title>
   <style>
     body {
-      background: #fff8f0;
+      background: url("https://www.transparenttextures.com/patterns/cork-board.png");
       font-family: "Comic Sans MS", "Chalkboard SE", cursive;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
@@ -17,17 +18,36 @@
       width: 80%;
       max-width: 600px;
       min-height: 150px;
-      background: #fff;
-      border: 3px dashed #444;
-      border-radius: 16px;
-      box-shadow: 5px 5px 0 #aaa;
+      background: #fffdf5;
+      border: 2px solid #c49a6c;
+      border-radius: 12px;
+      box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
       padding: 20px;
-      font-size: 1.4em;
+      font-size: 1.3em;
       text-align: center;
       position: relative;
       animation: fadeIn 0.6s ease;
       white-space: pre-wrap;
       word-wrap: break-word;
+    }
+    .buttons {
+      margin-top: 20px;
+    }
+    button {
+      background: #f2d6a2;
+      border: 2px solid #a87b47;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 1.4em;
+      cursor: pointer;
+      margin: 0 20px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+      transition: all 0.2s;
+    }
+    button:hover {
+      background: #ffe2b8;
+      transform: scale(1.1);
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -37,6 +57,10 @@
 </head>
 <body>
   <div class="card" id="card">読み込み中…</div>
+  <div class="buttons">
+    <button onclick="prev()">◀</button>
+    <button onclick="next()">▶</button>
+  </div>
 
   <script>
     const sheetUrl = "https://docs.google.com/spreadsheets/d/1vDbt5nQeH_zgMjJCDnMaB6oGhMMPc2vv-ixQ4zYI9A8/gviz/tq?tqx=out:csv";
@@ -48,25 +72,34 @@
         const res = await fetch(sheetUrl);
         const text = await res.text();
         const lines = text.split("\n").map(l => l.split(","));
-        
-        // 1行目（ヘッダー）を除外
+        // ヘッダーを除外
         rows = lines.slice(1).filter(r => r[2] && r[2].trim() !== "");
       } catch (e) {
         document.getElementById("card").textContent = "データを読み込めませんでした。";
       }
     }
 
-    function showNext() {
+    function showCard() {
       if (rows.length === 0) return;
       const card = document.getElementById("card");
-      card.textContent = rows[index][2]; // C列（つらいことをかいてね）
+      card.textContent = rows[index][2]; // C列（つらいこと）
+    }
+
+    function next() {
+      if (rows.length === 0) return;
       index = (index + 1) % rows.length;
+      showCard();
+    }
+
+    function prev() {
+      if (rows.length === 0) return;
+      index = (index - 1 + rows.length) % rows.length;
+      showCard();
     }
 
     async function start() {
       await loadData();
-      showNext();
-      setInterval(showNext, 4000); // 4秒ごとに切り替え
+      showCard();
     }
 
     start();
